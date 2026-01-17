@@ -87,7 +87,7 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
                           summary: loaded.steps,
                           lastSynced: loaded.lastSynced,
                           onRefresh: () =>
-                              context.read<HealthBloc>().add(RefreshSteps()),
+                              context.read<HealthBloc>().add(LoadHealthData()),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
@@ -349,13 +349,15 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
 }
 
 String _formatTime(DateTime dt) {
-  final now = DateTime.now();
+  // Convert UTC to IST (UTC+5:30)
+  final istTime = dt.add(const Duration(hours: 5, minutes: 30));
+  final now = DateTime.now().add(const Duration(hours: 5, minutes: 30));
   final today = DateTime(now.year, now.month, now.day);
-  final dateOnly = DateTime(dt.year, dt.month, dt.day);
+  final dateOnly = DateTime(istTime.year, istTime.month, istTime.day);
   if (dateOnly == today) {
-    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    return '${istTime.hour.toString().padLeft(2, '0')}:${istTime.minute.toString().padLeft(2, '0')}';
   }
-  return '${dt.month}/${dt.day} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  return '${istTime.month}/${istTime.day} ${istTime.hour.toString().padLeft(2, '0')}:${istTime.minute.toString().padLeft(2, '0')}';
 }
 
 String _buildCountDisplay(dynamic log) {
