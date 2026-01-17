@@ -53,6 +53,7 @@ class HealthService {
 
     final types = <HealthDataType>[
       HealthDataType.STEPS,
+      HealthDataType.WORKOUT,
       HealthDataType.ACTIVE_ENERGY_BURNED,
       HealthDataType.HEART_RATE,
       HealthDataType.DISTANCE_DELTA,
