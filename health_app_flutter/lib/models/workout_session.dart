@@ -2,6 +2,7 @@ enum ExerciseType { running, cycling, walking, strengthTraining, yoga, other }
 
 class WorkoutSession {
   final ExerciseType type;
+  final String activityTypeName; // Store the actual activity type name
   final DateTime start;
   final DateTime end;
   final Duration duration;
@@ -14,6 +15,7 @@ class WorkoutSession {
 
   WorkoutSession({
     required this.type,
+    required this.activityTypeName,
     required this.start,
     required this.end,
     required this.duration,
@@ -28,6 +30,7 @@ class WorkoutSession {
   Map<String, dynamic> toJson(String userId) => {
     'userId': userId,
     'type': type.name,
+    'activityTypeName': activityTypeName,
     'start': start.toIso8601String(),
     'end': end.toIso8601String(),
     'durationSeconds': duration.inSeconds,
@@ -44,6 +47,7 @@ class WorkoutSession {
       (e) => e.name == (json['type'] as String? ?? 'other'),
       orElse: () => ExerciseType.other,
     ),
+    activityTypeName: json['activityTypeName'] as String? ?? 'Other',
     start: DateTime.parse(json['start'] as String),
     end: DateTime.parse(json['end'] as String),
     duration: Duration(seconds: (json['durationSeconds'] as num).toInt()),

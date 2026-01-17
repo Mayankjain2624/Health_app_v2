@@ -19,15 +19,16 @@ const workoutSchema = Joi.object({
       Joi.object({
         userId: Joi.string().required(),
         type: Joi.string().required(),
+        activityTypeName: Joi.string().optional(),
         start: Joi.string().isoDate().required(),
         end: Joi.string().isoDate().required(),
         durationSeconds: Joi.number().integer().min(0).required(),
-        activeCalories: Joi.number().optional(),
-        steps: Joi.number().integer().optional(),
-        distance: Joi.number().optional(),
-        avgHeartRate: Joi.number().optional(),
-        peakHeartRate: Joi.number().optional(),
-        avgPace: Joi.number().optional(),
+        activeCalories: Joi.number().optional().allow(null),
+        steps: Joi.number().integer().optional().allow(null),
+        distance: Joi.number().optional().allow(null),
+        avgHeartRate: Joi.number().optional().allow(null),
+        peakHeartRate: Joi.number().optional().allow(null),
+        avgPace: Joi.number().optional().allow(null),
       })
     )
     .required(),
@@ -62,7 +63,10 @@ router.post('/steps', async (req, res) => {
 // POST workouts
 router.post('/workouts', async (req, res) => {
   const { error, value } = workoutSchema.validate(req.body);
-  if (error) return res.status(400).json({ ok: false, error: error.message });
+  if (error) {
+    console.error('Workout validation error:', error.details);
+    return res.status(400).json({ ok: false, error: error.message, details: error.details });
+  }
   try {
     const { sessions } = value;
     if (!sessions || sessions.length === 0)

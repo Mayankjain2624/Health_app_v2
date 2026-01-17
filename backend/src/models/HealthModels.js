@@ -14,6 +14,7 @@ const WorkoutSessionSchema = new mongoose.Schema(
   {
     userId: { type: String, index: true, required: true },
     type: { type: String, required: true },
+    activityTypeName: { type: String },
     start: { type: Date, required: true },
     end: { type: Date, required: true },
     durationSeconds: { type: Number, required: true },

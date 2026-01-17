@@ -11,7 +11,7 @@ class WorkoutCard extends StatelessWidget {
       case ExerciseType.running:
         return Icons.directions_run;
       case ExerciseType.cycling:
-        return Icons.pedal_bike;
+        return Icons.two_wheeler;
       case ExerciseType.walking:
         return Icons.directions_walk;
       case ExerciseType.strengthTraining:
@@ -19,24 +19,24 @@ class WorkoutCard extends StatelessWidget {
       case ExerciseType.yoga:
         return Icons.self_improvement;
       case ExerciseType.other:
-        return Icons.sports;
+        return Icons.sports_basketball;
     }
   }
 
   Color _colorFor(ExerciseType t) {
     switch (t) {
       case ExerciseType.running:
-        return Colors.red;
+        return const Color(0xFFB0BEC5); // Subtle gray-blue
       case ExerciseType.cycling:
-        return Colors.green;
+        return const Color(0xFF90A4AE); // Subtle blue-gray
       case ExerciseType.walking:
-        return Colors.orange;
+        return const Color(0xFFA1887F); // Subtle brown-gray
       case ExerciseType.strengthTraining:
-        return Colors.purple;
+        return const Color(0xFF78909C); // Subtle slate gray
       case ExerciseType.yoga:
-        return Colors.teal;
+        return const Color(0xFF80CBC4); // Subtle teal-gray
       case ExerciseType.other:
-        return const Color(0xFF1976D2);
+        return const Color(0xFF81D4FA); // Subtle light blue
     }
   }
 
@@ -46,24 +46,22 @@ class WorkoutCard extends StatelessWidget {
     final accentColor = _colorFor(session.type);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: const Color(0xFF1E1E1E),
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: const Color(0xFF1A1A1A),
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: accentColor.withOpacity(0.3), width: 1.5),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF1E1E1E),
-              const Color(0xFF1E1E1E).withOpacity(0.9),
-            ],
+            colors: [const Color(0xFF1A1A1A), const Color(0xFF262626)],
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -102,13 +100,7 @@ class WorkoutCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            session.type.name
-                                .replaceFirst(
-                                  session.type.name[0],
-                                  session.type.name[0].toUpperCase(),
-                                )
-                                .replaceAll(RegExp(r'([A-Z])'), r' $1')
-                                .trim(),
+                            session.activityTypeName,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -132,7 +124,7 @@ class WorkoutCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // Stats section
+              // Primary stats section
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -143,37 +135,93 @@ class WorkoutCard extends StatelessWidget {
                     width: 1,
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                child: Column(
                   children: [
-                    _buildStatBox(
-                      '${session.duration.inMinutes}',
-                      'DURATION',
-                      Icons.timer,
-                      accentColor,
+                    // First row: Duration, Calories, Distance (if available)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatBox(
+                          '${session.duration.inMinutes}',
+                          'MIN',
+                          Icons.timer,
+                          accentColor,
+                        ),
+                        Container(
+                          width: 1,
+                          height: 40,
+                          color: accentColor.withOpacity(0.2),
+                        ),
+                        _buildStatBox(
+                          '${session.activeCalories?.toStringAsFixed(0) ?? '-'}',
+                          'CAL',
+                          Icons.local_fire_department,
+                          accentColor,
+                        ),
+                        if (session.distance != null &&
+                            session.distance! > 0) ...[
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: accentColor.withOpacity(0.2),
+                          ),
+                          _buildStatBox(
+                            '${(session.distance! / 1000).toStringAsFixed(2)}',
+                            'KM',
+                            Icons.location_on,
+                            accentColor,
+                          ),
+                        ],
+                      ],
                     ),
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: accentColor.withOpacity(0.2),
-                    ),
-                    _buildStatBox(
-                      '${session.activeCalories?.toStringAsFixed(0) ?? '-'}',
-                      'CALORIES',
-                      Icons.local_fire_department,
-                      accentColor,
-                    ),
-                    if (session.distance != null) ...[
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: accentColor.withOpacity(0.2),
-                      ),
-                      _buildStatBox(
-                        '${session.distance?.toStringAsFixed(2) ?? '-'}',
-                        'KM',
-                        Icons.location_on,
-                        accentColor,
+                    // Second row: Heart rate data (if available)
+                    if (session.avgHeartRate != null ||
+                        session.peakHeartRate != null) ...[
+                      const SizedBox(height: 14),
+                      Divider(color: accentColor.withOpacity(0.2), height: 1),
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          if (session.avgHeartRate != null)
+                            _buildStatBox(
+                              '${session.avgHeartRate?.toStringAsFixed(0) ?? '-'}',
+                              'AVG BPM',
+                              Icons.favorite,
+                              accentColor,
+                            ),
+                          if (session.avgHeartRate != null &&
+                              session.peakHeartRate != null)
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: accentColor.withOpacity(0.2),
+                            ),
+                          if (session.peakHeartRate != null)
+                            _buildStatBox(
+                              '${session.peakHeartRate?.toStringAsFixed(0) ?? '-'}',
+                              'PEAK BPM',
+                              Icons.favorite_border,
+                              accentColor,
+                            ),
+                          if ((session.avgHeartRate != null ||
+                                  session.peakHeartRate != null) &&
+                              session.avgPace != null)
+                            Container(
+                              width: 1,
+                              height: 40,
+                              color: accentColor.withOpacity(0.2),
+                            ),
+                          if (session.avgPace != null &&
+                              session.distance != null &&
+                              session.distance! > 0)
+                            _buildStatBox(
+                              '${(session.avgPace! * 60).toStringAsFixed(1)}',
+                              'MIN/KM',
+                              Icons.speed,
+                              accentColor,
+                            ),
+                        ],
                       ),
                     ],
                   ],

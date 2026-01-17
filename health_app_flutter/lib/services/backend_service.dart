@@ -15,13 +15,12 @@ class BackendService {
     List<WorkoutSession> sessions, {
     required String userId,
   }) async {
-    await _dio.post(
-      '/api/workouts',
-      data: {
-        'userId': userId,
-        'sessions': sessions.map((s) => s.toJson(userId)).toList(),
-      },
-    );
+    final payload = {
+      'userId': userId,
+      'sessions': sessions.map((s) => s.toJson(userId)).toList(),
+    };
+    print('BackendService: Syncing workouts payload: ${payload.toString()}');
+    await _dio.post('/api/workouts', data: payload);
   }
 
   Future<List<WorkoutSession>> fetchWorkouts({
